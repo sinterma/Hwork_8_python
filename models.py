@@ -1,22 +1,18 @@
 class Product:
 
-
     def __init__(self, name, price, description, quantity):
         self.name = name
         self.price = price
         self.description = description
         self.quantity = quantity
 
-
     def check_quantity(self, quantity) -> bool:
         return self.quantity >= quantity
-
 
     def buy(self, quantity):
         if not self.check_quantity(quantity):
             raise ValueError(f"Недостаточно продукта {self.name} в наличии")
         self.quantity -= quantity
-
 
     def __hash__(self):
         return hash(self.name + self.description)
@@ -28,6 +24,9 @@ class Cart:
         self.products = {}
 
     def add_product(self, product: Product, buy_count=1):
+        if buy_count <= 0:
+            raise ValueError("Невозможно добавить нулевое или отрицательное количество продукта в корзину")
+
         if product in self.products:
             self.products[product] += buy_count
         else:
@@ -48,5 +47,10 @@ class Cart:
 
     def buy(self):
         for product, count in self.products.items():
+            if not product.check_quantity(count):
+                raise ValueError(f"Недостаточно продукта {product.name} в наличии")
+
+        for product, count in self.products.items():
             product.buy(count)
+
         self.clear()
